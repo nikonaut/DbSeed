@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="DbSeed.Tests/DbSeed.Tests.csproj" Id="0f641626-9097-4be8-a5c9-41b8e1ef36ad" />
+  <Project Path="DbSeed/DbSeed.csproj" />
+</Solution>
