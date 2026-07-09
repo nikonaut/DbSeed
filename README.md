@@ -43,7 +43,7 @@ dotnet run --project DbSeed -- --help
 Publish a framework-dependent single-file Windows executable:
 
 ```powershell
-dotnet publish DbSeed\DbSeed.csproj -p:PublishProfile=Executable
+dotnet publish DbSeed\DbSeed.csproj -c Release -r win-x64 --self-contained false -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:DebugType=none -p:DebugSymbols=false
 ```
 
 This produces `dbseed.exe` as a single-file executable. The target machine must have the .NET 10 Runtime installed.
