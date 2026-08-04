@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Data;
 using System.Text.Json;
 using Microsoft.Data.SqlClient;
 
@@ -163,10 +164,28 @@ internal static class ImportCommand
         for (var index = 0; index < values.Count; index++)
         {
             var (column, value) = values[index];
-            command.Parameters.AddWithValue($"@p{index}", ConvertJsonValue(value, column));
+            command.Parameters.Add(CreateParameter($"@p{index}", ConvertJsonValue(value, column), column));
         }
 
         await command.ExecuteNonQueryAsync();
+    }
+
+    internal static SqlParameter CreateParameter(string name, object value, SqlColumnInfo column)
+    {
+        var sqlDbType = column.DataType.ToLowerInvariant() switch
+        {
+            "date" => SqlDbType.Date,
+            "datetime" => SqlDbType.DateTime,
+            "datetime2" => SqlDbType.DateTime2,
+            "datetimeoffset" => SqlDbType.DateTimeOffset,
+            "smalldatetime" => SqlDbType.SmallDateTime,
+            "time" => SqlDbType.Time,
+            _ => (SqlDbType?)null
+        };
+
+        return sqlDbType is { } temporalType
+            ? new SqlParameter(name, temporalType) { Value = value }
+            : new SqlParameter(name, value);
     }
 
     internal static object ConvertJsonValue(JsonElement value, SqlColumnInfo column)

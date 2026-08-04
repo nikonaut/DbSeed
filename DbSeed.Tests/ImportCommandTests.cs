@@ -1,3 +1,4 @@
+using System.Data;
 using System.Text.Json;
 
 namespace DbSeed.Tests;
@@ -144,6 +145,38 @@ public sealed class ImportCommandTests
             DateTime.Parse("2026-06-27T14:30:01.0000000Z", null, System.Globalization.DateTimeStyles.RoundtripKind),
             Convert("\"2026-06-27T14:30:01.0000000Z\"", "datetime2"));
         Assert.Equal(TimeSpan.Parse("01:02:03"), Convert("\"01:02:03\"", "time"));
+    }
+
+    [Theory]
+    [InlineData("date", SqlDbType.Date)]
+    [InlineData("datetime", SqlDbType.DateTime)]
+    [InlineData("datetime2", SqlDbType.DateTime2)]
+    [InlineData("datetimeoffset", SqlDbType.DateTimeOffset)]
+    [InlineData("smalldatetime", SqlDbType.SmallDateTime)]
+    [InlineData("time", SqlDbType.Time)]
+    public void CreateParameter_UsesTheDestinationTemporalType(string sqlType, SqlDbType expected)
+    {
+        var value = sqlType == "datetimeoffset"
+            ? (object)DateTimeOffset.MinValue
+            : sqlType == "time"
+                ? TimeSpan.Zero
+                : DateTime.MinValue;
+
+        var parameter = ImportCommand.CreateParameter("@value", value, Column(sqlType));
+
+        Assert.Equal(expected, parameter.SqlDbType);
+        Assert.Equal(value, parameter.Value);
+    }
+
+    [Fact]
+    public void CreateParameter_ForDateTime2Minimum_DoesNotInferDateTime()
+    {
+        var value = Assert.IsType<DateTime>(Convert("\"0001-01-01T00:00:00.0000000\"", "datetime2"));
+
+        var parameter = ImportCommand.CreateParameter("@value", value, Column("datetime2"));
+
+        Assert.Equal(DateTime.MinValue, parameter.Value);
+        Assert.Equal(SqlDbType.DateTime2, parameter.SqlDbType);
     }
 
     [Fact]
