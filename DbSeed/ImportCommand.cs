@@ -29,11 +29,7 @@ internal static class ImportCommand
                 CommentHandling = JsonCommentHandling.Skip
             });
 
-            if (!TryGetProperty(document.RootElement, "tables", out var tablesElement) ||
-                tablesElement.ValueKind != JsonValueKind.Array)
-            {
-                throw new DbSeedException("The input file is not a DbSeed export: root property 'tables' is missing.");
-            }
+            var tablesElement = ReadTables(document.RootElement);
 
             foreach (var tableElement in tablesElement.EnumerateArray())
             {
@@ -62,6 +58,17 @@ internal static class ImportCommand
 
         Console.WriteLine($"Imported {inserted} row(s) from {input}.");
         return 0;
+    }
+
+    internal static JsonElement ReadTables(JsonElement root)
+    {
+        if (!TryGetProperty(root, "tables", out var tablesElement) ||
+            tablesElement.ValueKind != JsonValueKind.Array)
+        {
+            throw new DbSeedException("The input file is not a DbSeed export: root property 'tables' is missing.");
+        }
+
+        return tablesElement;
     }
 
     private static async Task CleanTableAsync(SqlConnection connection, SqlTransaction transaction, SqlTableName table) =>

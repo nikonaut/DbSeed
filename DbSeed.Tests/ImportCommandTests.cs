@@ -6,6 +6,24 @@ namespace DbSeed.Tests;
 public sealed class ImportCommandTests
 {
     [Fact]
+    public void ReadTables_IgnoresUnrelatedRootMetadata()
+    {
+        using var document = JsonDocument.Parse("""
+            {
+              "metadata": {
+                "description": "Not interpreted during import",
+                "additionalProperty": [1, 2, 3]
+              },
+              "tables": []
+            }
+            """);
+
+        var tables = ImportCommand.ReadTables(document.RootElement);
+
+        Assert.Equal(JsonValueKind.Array, tables.ValueKind);
+    }
+
+    [Fact]
     public void ReadTableName_WithExplicitSchemaAndName_ReturnsTable()
     {
         using var document = JsonDocument.Parse("""

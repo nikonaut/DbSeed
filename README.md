@@ -127,6 +127,11 @@ DbSeed writes JSON with this top-level shape:
 ```json
 {
   "format": "DbSeed.export.v1",
+  "metadata": {
+    "description": "SQL Server table data exported by DbSeed for use with DbSeed.",
+    "createdBy": "DbSeed",
+    "projectUrl": "https://github.com/nikonaut/DbSeed"
+  },
   "generatedAt": "2026-06-27T14:30:01.0000000+00:00",
   "tables": [
     {
@@ -150,6 +155,8 @@ DbSeed writes JSON with this top-level shape:
   ]
 }
 ```
+
+The `metadata` object identifies the file for people and tools. DbSeed does not parse it during import, so additional metadata properties can be added without affecting the imported data.
 
 Binary values are exported as Base64 strings. `DateTime`, `DateTimeOffset`, `TimeSpan`, and `Guid` values are exported as round-trippable strings.
 

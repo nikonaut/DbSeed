@@ -1,7 +1,23 @@
+using System.Text.Json;
+
 namespace DbSeed.Tests;
 
 public sealed class ExportCommandTests
 {
+    [Fact]
+    public void ExportDocument_IncludesDescriptiveMetadata()
+    {
+        var json = JsonSerializer.Serialize(new ExportDocument(), JsonOptions.CreateIndented());
+        using var document = JsonDocument.Parse(json);
+        var metadata = document.RootElement.GetProperty("Metadata");
+
+        Assert.Equal(
+            "SQL Server table data exported by DbSeed for use with DbSeed.",
+            metadata.GetProperty("Description").GetString());
+        Assert.Equal("DbSeed", metadata.GetProperty("CreatedBy").GetString());
+        Assert.Equal("https://github.com/nikonaut/DbSeed", metadata.GetProperty("ProjectUrl").GetString());
+    }
+
     [Fact]
     public void FilterTables_WithNoIncludeOrExclude_ReturnsAllTables()
     {

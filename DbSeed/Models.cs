@@ -41,9 +41,20 @@ internal sealed record ExportDocument
 {
     public string Format { get; init; } = "DbSeed.export.v1";
 
+    public ExportMetadata Metadata { get; init; } = new();
+
     public DateTimeOffset GeneratedAt { get; init; } = DateTimeOffset.UtcNow;
 
     public List<ExportTable> Tables { get; init; } = [];
+}
+
+internal sealed record ExportMetadata
+{
+    public string Description { get; init; } = "SQL Server table data exported by DbSeed for use with DbSeed.";
+
+    public string CreatedBy { get; init; } = "DbSeed";
+
+    public string ProjectUrl { get; init; } = "https://github.com/nikonaut/DbSeed";
 }
 
 internal sealed record ExportTable(
